@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Declaração de Perda/Extravio - Detran MA</title>
+    <style>
+        :root {
+            --azul-detran: #4a7ebb;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        /* Interface de Entrada (Oculta na Impressão) */
+        #input-section {
+            max-width: 800px;
+            margin: 40px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        #input-section h2 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        textarea {
+            width: 100%;
+            height: 250px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: monospace;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 12px 24px;
+            background-color: var(--azul-detran);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: #366092;
+        }
+
+        /* Layout do PDF para Impressão */
+        #print-section {
+            display: none;
+            background: white;
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 20mm 15mm;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        @media print {
+            body { background: white; margin: 0; }
+            #input-section { display: none !important; }
+            #print-section { display: block !important; padding: 15mm; }
+            @page { size: A4; margin: 0; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+
+        /* Títulos */
+        .anexo-title { 
+            text-align: center; 
+            font-weight: bold; 
+            margin-bottom: 12px; 
+            font-size: 14px; 
+        }
+
+        .dec-title { 
+            text-align: center; 
+            font-weight: bold; 
+            text-decoration: underline; 
+            margin-bottom: 35px; 
+            font-size: 15px;
+        }
+
+        /* Linhas Preenchíveis */
+        .linha-texto {
+            display: flex;
+            align-items: flex-end;
+            margin-bottom: 12px;
+            white-space: nowrap;
+        }
+
+        .underline {
+            border-bottom: 1px solid #000;
+            display: inline-block;
+            min-height: 18px;
+            margin: 0 5px;
+            padding: 0 5px;
+            font-family: "Courier New", Courier, monospace;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .flex-1 { flex: 1; }
+
+        /* Checkboxes */
+        .checkbox-group {
+            margin: 20px 0;
+            font-weight: bold;
+            font-size: 13px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .box {
+            display: inline-block;
+            width: 40px;
+            height: 18px;
+            border: 1px solid #000;
+            border-radius: 4px;
+            margin-right: 12px;
+        }
+
+        /* Textos */
+        .texto-normal { font-size: 13px; margin-bottom: 15px; }
+        .texto-obs { font-size: 12px; font-weight: bold; text-align: justify; margin: 25px 0; }
+        .termo-titulo { text-align: center; font-weight: bold; margin: 30px 0 10px 0; font-size: 14px; }
+        .termo-texto { font-size: 12px; text-align: justify; font-weight: bold; line-height: 1.5; }
+        
+        /* Bloco de Assinatura */
+        .assinatura-bloco { margin-top: 50px; text-align: center; }
+        .assinatura-data { display: flex; justify-content: center; align-items: flex-end; margin-bottom: 50px; }
+        .linha-assinatura { width: 80%; border-bottom: 1px solid #000; margin: 0 auto 10px auto; }
+        
+        .rodape-obs { 
+            font-size: 10px; 
+            font-weight: bold; 
+            color: #333; 
+            text-align: left; 
+            width: 80%; 
+            margin: 0 auto; 
+            line-height: 1.4; 
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Interface -->
+    <div id="input-section">
+        <h2>Gerador de Declaração de Extravio</h2>
+        <p>Cole o texto com os dados do veículo e do proprietário abaixo para preencher o formulário.</p>
+        <textarea id="texto-entrada" placeholder="Cole os dados aqui..."></textarea>
+        <button onclick="gerarPDF()">Gerar PDF</button>
+    </div>
+
+    <!-- Documento Gerado -->
+    <div id="print-section">
+        
+        <div class="anexo-title">ANEXO V</div>
+        <div class="dec-title">DECLARAÇÃO DE PERDA/EXTRAVIO</div>
+
+        <div class="texto-corrido">
+            <div class="linha-texto">
+                Eu,<span class="underline flex-1" id="out-nome"></span>
+            </div>
+            <div class="linha-texto">
+                portador do RG <span class="underline" style="width: 150px" id="out-rg"></span> 
+                CPF <span class="underline" style="width: 160px" id="out-cpf"></span>, 
+                residente no(a)
+            </div>
+            <div class="linha-texto">
+                <span class="underline flex-1" id="out-logradouro"></span>, 
+                nº <span class="underline" style="width: 60px" id="out-numero"></span> ,
+            </div>
+            <div class="linha-texto">
+                complemento <span class="underline" style="width: 180px"></span>, 
+                bairro <span class="underline flex-1" id="out-bairro"></span>, 
+                cidade
+            </div>
+            <div class="linha-texto">
+                <span class="underline" style="width: 250px" id="out-cidade"></span>, 
+                CEP <span class="underline" style="width: 120px" id="out-cep"></span> , 
+                declaro para os devidos fins que
+            </div>
+            <div style="margin-top: 10px;">PERDI/EXTRAVIEI:</div>
+        </div>
+
+        <div class="checkbox-group">
+            <div class="checkbox-item"><span class="box"></span> CNH</div>
+            <div class="checkbox-item"><span class="box"></span> CRLV – Licenciamento</div>
+            <div class="checkbox-item"><span class="box"></span> CRV – Recibo de Compra e Venda</div>
+        </div>
+
+        <div class="texto-normal">Para CRV e/ou CRLV, favor preencher os dados solicitados abaixo sobre o veículo:</div>
+        
+        <div class="linha-texto">
+            PLACA: <span class="underline" style="width: 100px;" id="out-placa"></span> 
+            MODELO <span class="underline flex-1" id="out-modelo"></span> 
+            ANO <span class="underline" style="width: 70px;" id="out-ano"></span> 
+            RENAVAM:
+        </div>
+        <div class="linha-texto">
+            <span class="underline" style="width: 120px;" id="out-renavam"></span> 
+            COR <span class="underline" style="width: 180px;" id="out-cor"></span>
+        </div>
+
+        <div class="texto-obs">
+            OBS.: Se esta declaração for apresentada por procurador, deve vir acompanhada de procuração e documentação de identificação de acordo com a previsão da portaria do Detran 767/2015.
+        </div>
+
+        <div class="termo-titulo">Termo de Responsabilidade</div>
+        <div class="termo-texto">
+            Declaro assumir inteira responsabilidade civil e criminal pela declaração que deu origem ao presente registro, (artigo n° 299 do Código Penal Brasileiro), ficando ciente que esta declaração NÃO VALE COMO PROVA DE TITULARIDADE DE VEÍCULO, NÃO AUTORIZA DIRIGIR, NEM SERVE COMO PROVA DE PROPRIEDADE DE VEÍCULO, NEM SUBSTITUI OU REGULARIZA O DOCUMENTO EXTRAVIADO/PERDIDO. ALÉM DISTO, A MESMA NÃO TEM VALIDADE PARA FINS DE REGISTRO DE OCORRÊNCIA POLICIAL.
+        </div>
+
+        <div class="assinatura-bloco">
+            <div class="assinatura-data">
+                <span class="underline" style="width: 250px" id="out-local"></span>, 
+                <span class="underline" style="width: 40px" id="out-dia"></span> de 
+                <span class="underline" style="width: 180px" id="out-mes"></span> de 
+                <span class="underline" style="width: 70px" id="out-ano-assin"></span>.
+            </div>
+            
+            <div class="linha-assinatura"></div>
+            
+            <div class="rodape-obs">
+                OBS¹: assinatura idêntica ao documento de identificação apresentado.<br>
+                OBS²: reconhecer firma por autenticidade.<br>
+                OBS³: em caso de reconhecimento por este órgão, a assinatura deve<br>
+                ser feita na presença do funcionário que fará o reconhecimento.
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function extrairDados(texto) {
+            const extract = (regex, padrao = '') => {
+                const match = texto.match(regex);
+                return match ? match[1].trim() : padrao;
+            };
+
+            const dados = {};
+
+            // Proprietário: pega a linha após a 2ª ocorrência do rótulo "Proprietário".
+            const propMatch = texto.match(/Proprietário\s*\n\s*Proprietário\s*\n([^\n]+)/) ||
+                              texto.match(/Proprietário\s*\n([^\n]+)/);
+            if (propMatch) {
+                dados.nome = propMatch[1].replace(/\d+/g, '').trim();
+            } else {
+                dados.nome = '';
+            }
+
+            // CPF: pega apenas os 11 primeiros dígitos numéricos (ignora dígito verificador/sigla)
+            const cpfMatch = texto.match(/CPF\s*\n?\s*(\d{11})/i);
+            dados.cpf = cpfMatch ? cpfMatch[1] : '';
+
+            // RG: extrai apenas a sequência de dígitos que identifica o documento
+            // (o RG pode ser seguido por dígito verificador ou sigla da SSP)
+            const rgMatch = texto.match(/Identidade\s*\n\s*(\d+)/);
+            dados.rg = rgMatch ? rgMatch[1] : '';
+
+            // Endereço no formato Renavam/SPED
+            const enderecoRaw = extract(/Endereço\s*\n([^\n]+)/);
+            dados.logradouro = ''; dados.numero = ''; dados.bairro = ''; dados.cidade = ''; dados.cep = '';
+            if (enderecoRaw) {
+                const m = enderecoRaw
+                    .replace(/^\s*Endereço\s*:?\s*/, '')
+                    .match(/^(.*?),\s*N\.?\s*(.*?)\s*\.{1,3}\s*(.*?)\s*\.{1,3}\s*(.*?)\s*(?:\/\s*([A-Za-z]{2})\s*\.{1,3})?\s*CEP\s*:\s*([0-9-]+)/i);
+                if (m) {
+                    dados.logradouro = (m[1] || '').trim();
+                    dados.numero   = (m[2] || '').trim();
+                    dados.bairro   = (m[3] || '').trim();
+                    dados.cidade   = (m[4] || '').trim();
+                    const uf       = (m[5] || '').trim();
+                    const cep      = (m[6] || '').trim();
+                    if (uf && dados.cidade && !/[A-Za-z]{2}\s*$/i.test(dados.cidade)) {
+                        dados.cidade += '/' + uf;
+                    }
+                    dados.cep = cep;
+                } else {
+                    const cepM = enderecoRaw.match(/CEP\s*[:\-]?\s*([0-9-]+)/);
+                    dados.logradouro = enderecoRaw.replace(/\s*CEP\s*[:\-]?\s*[0-9-]+/i, '').trim();
+                    if (cepM) dados.cep = cepM[1];
+                }
+            }
+
+            const pTok = texto.match(/\b[A-Z]{3}\d{3}[A-Z]\b|\b[A-Z]{3}\d{4}\b|\b[A-Z]{2}[A-Z0-9]\d[A-Z0-9]\d\b/);
+            if (pTok) {
+                dados.placa = pTok[0].toUpperCase();
+            } else {
+                // Fallback: rótulo "Placa" seguido da linha seguinte
+                let placaBruta = extract(/Placa\s*\n([^\n]+)/);
+                if (placaBruta) {
+                    const pMatch = placaBruta.match(/\b[A-Z]{3}\d{3}[A-Z]\b|\b[A-Z]{2,3}[0-9A-Z]{4}\b/);
+                    dados.placa = pMatch ? pMatch[1].toUpperCase() : placaBruta.split('/')[0].trim().toUpperCase();
+                } else {
+                    dados.placa = '';
+                }
+            }
+
+            let modeloBruto = extract(/Marca\/Modelo\s*\n([^\n]+)/);
+            if (modeloBruto) {
+                let modeloLpo = modeloBruto.includes('-') ? modeloBruto.split('-')[1].trim() : modeloBruto;
+                dados.modelo = modeloLpo.split('(')[0].trim();
+            } else {
+                dados.modelo = '';
+            }
+
+            // Ano do modelo
+            let anoBruto = extract(/Fabricação\/Modelo\s*\n([^\n]+)/);
+            if (anoBruto) {
+                const anos = anoBruto.match(/(19\d{2}|20\d{2})/g);
+                dados.ano = anos ? anos[anos.length - 1] : anoBruto.split('/')[0].trim();
+            } else {
+                dados.ano = '';
+            }
+
+            dados.cor = extract(/Cor\s*\n([^\n]+)/);
+            dados.renavam = extract(/Renavam\s*\n([^\n]+)/);
+
+            // Cidade do local da assinatura
+            if (dados.cidade) {
+                dados.local = dados.cidade.split('/')[0].trim();
+            } else {
+                const mCidade = texto.match(/cidade\s*\n?\s*([A-ZÀ-ÿ][A-ZÀ-ÿ ]{2,30})/i);
+                dados.local = mCidade ? mCidade[1].trim() : '';
+            }
+
+            return dados;
+        }
+
+        function gerarPDF() {
+            const texto = document.getElementById('texto-entrada').value;
+            
+            if(!texto.trim()) {
+                alert('Por favor, cole o texto de entrada antes de gerar o PDF.');
+                return;
+            }
+
+            const dados = extrairDados(texto);
+
+            document.getElementById('out-nome').textContent = dados.nome;
+            document.getElementById('out-rg').textContent = dados.rg;
+            document.getElementById('out-cpf').textContent = dados.cpf;
+            document.getElementById('out-logradouro').textContent = dados.logradouro;
+            document.getElementById('out-numero').textContent = dados.numero;
+            document.getElementById('out-bairro').textContent = dados.bairro;
+            document.getElementById('out-cidade').textContent = dados.cidade;
+            document.getElementById('out-cep').textContent = dados.cep;
+            
+            document.getElementById('out-placa').textContent = dados.placa;
+            document.getElementById('out-modelo').textContent = dados.modelo;
+            document.getElementById('out-ano').textContent = dados.ano;
+            document.getElementById('out-renavam').textContent = dados.renavam;
+            document.getElementById('out-cor').textContent = dados.cor;
+
+            // Data do local da assinatura: sempre usa a data do sistema
+            const agora = new Date();
+            const meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+            document.getElementById('out-local').textContent   = dados.local || '';
+            document.getElementById('out-dia').textContent     = agora.getDate();
+            document.getElementById('out-mes').textContent     = meses[agora.getMonth()];
+            document.getElementById('out-ano-assin').textContent = agora.getFullYear();
+
+            setTimeout(() => {
+                window.print();
+            }, 300);
+        }
+    </script>
+</body>
+</html>
