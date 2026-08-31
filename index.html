@@ -7,6 +7,7 @@
     <style>
         :root {
             --azul-detran: #4a7ebb;
+            --azul-hover: #366092;
         }
 
         body {
@@ -16,12 +17,12 @@
             background-color: #f4f4f4;
         }
 
-        /* Interface de Entrada (Oculta na Impressão) */
+        /* Interface de Entrada */
         #input-section {
             max-width: 800px;
-            margin: 40px auto;
+            margin: 30px auto;
             background: white;
-            padding: 20px;
+            padding: 25px;
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
@@ -33,7 +34,7 @@
 
         textarea {
             width: 100%;
-            height: 250px;
+            height: 150px;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
@@ -42,21 +43,93 @@
             resize: vertical;
         }
 
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
         button {
-            margin-top: 15px;
-            padding: 12px 24px;
+            padding: 12px 20px;
             background-color: var(--azul-detran);
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             transition: background 0.3s;
         }
 
         button:hover {
-            background-color: #366092;
+            background-color: var(--azul-hover);
+        }
+
+        .btn-colar {
+            background-color: #28a745;
+        }
+
+        .btn-colar:hover {
+            background-color: #218838;
+        }
+
+        .btn-gerar {
+            background-color: var(--azul-detran);
+        }
+
+        /* Seção de Edição dos Dados */
+        #editor-section {
+            display: none;
+            margin-top: 25px;
+            border-top: 2px solid #eee;
+            padding-top: 20px;
+        }
+
+        #editor-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .doc-options {
+            background: #eef4fc;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .doc-options label {
+            margin-right: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .field-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .field-group label {
+            font-size: 12px;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 4px;
+        }
+
+        .field-group input {
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
         }
 
         /* Layout do PDF para Impressão */
@@ -81,23 +154,10 @@
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
 
-        /* Títulos */
-        .anexo-title { 
-            text-align: center; 
-            font-weight: bold; 
-            margin-bottom: 12px; 
-            font-size: 14px; 
-        }
+        /* Estilos do Documento Impresso */
+        .anexo-title { text-align: center; font-weight: bold; margin-bottom: 12px; font-size: 14px; }
+        .dec-title { text-align: center; font-weight: bold; text-decoration: underline; margin-bottom: 35px; font-size: 15px; }
 
-        .dec-title { 
-            text-align: center; 
-            font-weight: bold; 
-            text-decoration: underline; 
-            margin-bottom: 35px; 
-            font-size: 15px;
-        }
-
-        /* Linhas Preenchíveis */
         .linha-texto {
             display: flex;
             align-items: flex-end;
@@ -121,63 +181,133 @@
 
         .flex-1 { flex: 1; }
 
-        /* Checkboxes */
-        .checkbox-group {
-            margin: 20px 0;
-            font-weight: bold;
-            font-size: 13px;
-        }
-        
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-        }
+        .checkbox-group { margin: 20px 0; font-weight: bold; font-size: 13px; }
+        .checkbox-item { display: flex; align-items: center; margin-bottom: 8px; }
 
         .box {
-            display: inline-block;
-            width: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
             height: 18px;
             border: 1px solid #000;
-            border-radius: 4px;
+            border-radius: 2px;
             margin-right: 12px;
+            font-family: monospace;
+            font-weight: bold;
         }
 
-        /* Textos */
         .texto-normal { font-size: 13px; margin-bottom: 15px; }
         .texto-obs { font-size: 12px; font-weight: bold; text-align: justify; margin: 25px 0; }
         .termo-titulo { text-align: center; font-weight: bold; margin: 30px 0 10px 0; font-size: 14px; }
         .termo-texto { font-size: 12px; text-align: justify; font-weight: bold; line-height: 1.5; }
-        
-        /* Bloco de Assinatura */
         .assinatura-bloco { margin-top: 50px; text-align: center; }
         .assinatura-data { display: flex; justify-content: center; align-items: flex-end; margin-bottom: 50px; }
         .linha-assinatura { width: 80%; border-bottom: 1px solid #000; margin: 0 auto 10px auto; }
-        
-        .rodape-obs { 
-            font-size: 10px; 
-            font-weight: bold; 
-            color: #333; 
-            text-align: left; 
-            width: 80%; 
-            margin: 0 auto; 
-            line-height: 1.4; 
-        }
+        .rodape-obs { font-size: 10px; font-weight: bold; color: #333; text-align: left; width: 80%; margin: 0 auto; line-height: 1.4; }
     </style>
 </head>
 <body>
 
-    <!-- Interface -->
+    <!-- Interface Principal -->
     <div id="input-section">
         <h2>Gerador de Declaração de Extravio</h2>
-        <p>Cole o texto com os dados do veículo e do proprietário abaixo para preencher o formulário.</p>
-        <textarea id="texto-entrada" placeholder="Cole os dados aqui..."></textarea>
-        <button onclick="gerarPDF()">Gerar PDF</button>
+        <p>Cole o texto com os dados do veículo e proprietário abaixo.</p>
+        
+        <textarea id="texto-entrada" placeholder="Cole os dados aqui..." oninput="processarEntrada()"></textarea>
+        
+        <div class="btn-group">
+            <button type="button" class="btn-colar" onclick="colarDaAreaDeTransferencia()">📋 Colar Texto</button>
+            <button type="button" class="btn-gerar" onclick="gerarPDF()">📄 Gerar PDF</button>
+        </div>
+
+        <!-- Painel de Edição (Aparece ao detectar dados) -->
+        <div id="editor-section">
+            <h3>Conferência e Edição dos Dados</h3>
+            
+            <div class="doc-options">
+                <strong>Documento(s) Perdi/Extraviei:</strong><br><br>
+                <label><input type="checkbox" id="chk-cnh"> CNH</label>
+                <label><input type="checkbox" id="chk-crlv"> CRLV – Licenciamento</label>
+                <label><input type="checkbox" id="chk-crv"> CRV – Recibo de Compra e Venda</label>
+            </div>
+
+            <div class="form-grid">
+                <div class="field-group full-width">
+                    <label>Nome do Proprietário</label>
+                    <input type="text" id="edit-nome">
+                </div>
+
+                <div class="field-group">
+                    <label>RG</label>
+                    <input type="text" id="edit-rg">
+                </div>
+
+                <div class="field-group">
+                    <label>CPF</label>
+                    <input type="text" id="edit-cpf">
+                </div>
+
+                <div class="field-group full-width">
+                    <label>Logradouro / Endereço</label>
+                    <input type="text" id="edit-logradouro">
+                </div>
+
+                <div class="field-group">
+                    <label>Número</label>
+                    <input type="text" id="edit-numero">
+                </div>
+
+                <div class="field-group">
+                    <label>Bairro</label>
+                    <input type="text" id="edit-bairro">
+                </div>
+
+                <div class="field-group">
+                    <label>Cidade / UF</label>
+                    <input type="text" id="edit-cidade">
+                </div>
+
+                <div class="field-group">
+                    <label>CEP</label>
+                    <input type="text" id="edit-cep">
+                </div>
+
+                <div class="field-group">
+                    <label>Placa</label>
+                    <input type="text" id="edit-placa">
+                </div>
+
+                <div class="field-group">
+                    <label>Modelo</label>
+                    <input type="text" id="edit-modelo">
+                </div>
+
+                <div class="field-group">
+                    <label>Ano</label>
+                    <input type="text" id="edit-ano">
+                </div>
+
+                <div class="field-group">
+                    <label>RENAVAM</label>
+                    <input type="text" id="edit-renavam">
+                </div>
+
+                <div class="field-group">
+                    <label>Cor</label>
+                    <input type="text" id="edit-cor">
+                </div>
+
+                <div class="field-group">
+                    <label>Cidade da Assinatura</label>
+                    <input type="text" id="edit-local">
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Documento Gerado -->
+    <!-- Documento Gerado (PDF/Impressão) -->
     <div id="print-section">
-        
         <div class="anexo-title">ANEXO V</div>
         <div class="dec-title">DECLARAÇÃO DE PERDA/EXTRAVIO</div>
 
@@ -208,9 +338,9 @@
         </div>
 
         <div class="checkbox-group">
-            <div class="checkbox-item"><span class="box"></span> CNH</div>
-            <div class="checkbox-item"><span class="box"></span> CRLV – Licenciamento</div>
-            <div class="checkbox-item"><span class="box"></span> CRV – Recibo de Compra e Venda</div>
+            <div class="checkbox-item"><span class="box" id="box-cnh"></span> CNH</div>
+            <div class="checkbox-item"><span class="box" id="box-crlv"></span> CRLV – Licenciamento</div>
+            <div class="checkbox-item"><span class="box" id="box-crv"></span> CRV – Recibo de Compra e Venda</div>
         </div>
 
         <div class="texto-normal">Para CRV e/ou CRLV, favor preencher os dados solicitados abaixo sobre o veículo:</div>
@@ -252,10 +382,37 @@
                 ser feita na presença do funcionário que fará o reconhecimento.
             </div>
         </div>
-
     </div>
 
     <script>
+        async function colarDaAreaDeTransferencia() {
+            try {
+                const texto = await navigator.clipboard.readText();
+                if (texto) {
+                    document.getElementById('texto-entrada').value = texto;
+                    processarEntrada();
+                } else {
+                    alert('Nenhum texto encontrado na área de transferência.');
+                }
+            } catch (err) {
+                alert('Não foi possível ler a área de transferência automaticamente. Use Ctrl+V no campo de texto.');
+            }
+        }
+
+        function processarEntrada() {
+            const texto = document.getElementById('texto-entrada').value;
+            const editor = document.getElementById('editor-section');
+
+            if (!texto.trim()) {
+                editor.style.display = 'none';
+                return;
+            }
+
+            const dados = extrairDados(texto);
+            preencherCamposEdicao(dados);
+            editor.style.display = 'block';
+        }
+
         function extrairDados(texto) {
             const extract = (regex, padrao = '') => {
                 const match = texto.match(regex);
@@ -264,25 +421,16 @@
 
             const dados = {};
 
-            // Proprietário: pega a linha após a 2ª ocorrência do rótulo "Proprietário".
             const propMatch = texto.match(/Proprietário\s*\n\s*Proprietário\s*\n([^\n]+)/) ||
                               texto.match(/Proprietário\s*\n([^\n]+)/);
-            if (propMatch) {
-                dados.nome = propMatch[1].replace(/\d+/g, '').trim();
-            } else {
-                dados.nome = '';
-            }
+            dados.nome = propMatch ? propMatch[1].replace(/\d+/g, '').trim() : '';
 
-            // CPF: pega apenas os 11 primeiros dígitos numéricos (ignora dígito verificador/sigla)
             const cpfMatch = texto.match(/CPF\s*\n?\s*(\d{11})/i);
             dados.cpf = cpfMatch ? cpfMatch[1] : '';
 
-            // RG: extrai apenas a sequência de dígitos que identifica o documento
-            // (o RG pode ser seguido por dígito verificador ou sigla da SSP)
             const rgMatch = texto.match(/Identidade\s*\n\s*(\d+)/);
             dados.rg = rgMatch ? rgMatch[1] : '';
 
-            // Endereço no formato Renavam/SPED
             const enderecoRaw = extract(/Endereço\s*\n([^\n]+)/);
             dados.logradouro = ''; dados.numero = ''; dados.bairro = ''; dados.cidade = ''; dados.cep = '';
             if (enderecoRaw) {
@@ -311,7 +459,6 @@
             if (pTok) {
                 dados.placa = pTok[0].toUpperCase();
             } else {
-                // Fallback: rótulo "Placa" seguido da linha seguinte
                 let placaBruta = extract(/Placa\s*\n([^\n]+)/);
                 if (placaBruta) {
                     const pMatch = placaBruta.match(/\b[A-Z]{3}\d{3}[A-Z]\b|\b[A-Z]{2,3}[0-9A-Z]{4}\b/);
@@ -329,7 +476,6 @@
                 dados.modelo = '';
             }
 
-            // Ano do modelo
             let anoBruto = extract(/Fabricação\/Modelo\s*\n([^\n]+)/);
             if (anoBruto) {
                 const anos = anoBruto.match(/(19\d{2}|20\d{2})/g);
@@ -341,7 +487,6 @@
             dados.cor = extract(/Cor\s*\n([^\n]+)/);
             dados.renavam = extract(/Renavam\s*\n([^\n]+)/);
 
-            // Cidade do local da assinatura
             if (dados.cidade) {
                 dados.local = dados.cidade.split('/')[0].trim();
             } else {
@@ -352,42 +497,63 @@
             return dados;
         }
 
+        function preencherCamposEdicao(dados) {
+            document.getElementById('edit-nome').value = dados.nome || '';
+            document.getElementById('edit-rg').value = dados.rg || '';
+            document.getElementById('edit-cpf').value = dados.cpf || '';
+            document.getElementById('edit-logradouro').value = dados.logradouro || '';
+            document.getElementById('edit-numero').value = dados.numero || '';
+            document.getElementById('edit-bairro').value = dados.bairro || '';
+            document.getElementById('edit-cidade').value = dados.cidade || '';
+            document.getElementById('edit-cep').value = dados.cep || '';
+            
+            document.getElementById('edit-placa').value = dados.placa || '';
+            document.getElementById('edit-modelo').value = dados.modelo || '';
+            document.getElementById('edit-ano').value = dados.ano || '';
+            document.getElementById('edit-renavam').value = dados.renavam || '';
+            document.getElementById('edit-cor').value = dados.cor || '';
+            document.getElementById('edit-local').value = dados.local || '';
+        }
+
         function gerarPDF() {
             const texto = document.getElementById('texto-entrada').value;
-            
-            if(!texto.trim()) {
-                alert('Por favor, cole o texto de entrada antes de gerar o PDF.');
+            if (!texto.trim()) {
+                alert('Por favor, insira ou cole os dados antes de gerar o PDF.');
                 return;
             }
 
-            const dados = extrairDados(texto);
+            // Reflete seleção dos documentos no PDF
+            document.getElementById('box-cnh').textContent = document.getElementById('chk-cnh').checked ? 'X' : '';
+            document.getElementById('box-crlv').textContent = document.getElementById('chk-crlv').checked ? 'X' : '';
+            document.getElementById('box-crv').textContent = document.getElementById('chk-crv').checked ? 'X' : '';
 
-            document.getElementById('out-nome').textContent = dados.nome;
-            document.getElementById('out-rg').textContent = dados.rg;
-            document.getElementById('out-cpf').textContent = dados.cpf;
-            document.getElementById('out-logradouro').textContent = dados.logradouro;
-            document.getElementById('out-numero').textContent = dados.numero;
-            document.getElementById('out-bairro').textContent = dados.bairro;
-            document.getElementById('out-cidade').textContent = dados.cidade;
-            document.getElementById('out-cep').textContent = dados.cep;
+            // Copia os dados editados pelo usuário para o documento de impressão
+            document.getElementById('out-nome').textContent = document.getElementById('edit-nome').value;
+            document.getElementById('out-rg').textContent = document.getElementById('edit-rg').value;
+            document.getElementById('out-cpf').textContent = document.getElementById('edit-cpf').value;
+            document.getElementById('out-logradouro').textContent = document.getElementById('edit-logradouro').value;
+            document.getElementById('out-numero').textContent = document.getElementById('edit-numero').value;
+            document.getElementById('out-bairro').textContent = document.getElementById('edit-bairro').value;
+            document.getElementById('out-cidade').textContent = document.getElementById('edit-cidade').value;
+            document.getElementById('out-cep').textContent = document.getElementById('edit-cep').value;
             
-            document.getElementById('out-placa').textContent = dados.placa;
-            document.getElementById('out-modelo').textContent = dados.modelo;
-            document.getElementById('out-ano').textContent = dados.ano;
-            document.getElementById('out-renavam').textContent = dados.renavam;
-            document.getElementById('out-cor').textContent = dados.cor;
+            document.getElementById('out-placa').textContent = document.getElementById('edit-placa').value;
+            document.getElementById('out-modelo').textContent = document.getElementById('edit-modelo').value;
+            document.getElementById('out-ano').textContent = document.getElementById('edit-ano').value;
+            document.getElementById('out-renavam').textContent = document.getElementById('edit-renavam').value;
+            document.getElementById('out-cor').textContent = document.getElementById('edit-cor').value;
 
-            // Data do local da assinatura: sempre usa a data do sistema
+            // Data do local da assinatura
             const agora = new Date();
             const meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-            document.getElementById('out-local').textContent   = dados.local || '';
-            document.getElementById('out-dia').textContent     = agora.getDate();
-            document.getElementById('out-mes').textContent     = meses[agora.getMonth()];
+            document.getElementById('out-local').textContent = document.getElementById('edit-local').value;
+            document.getElementById('out-dia').textContent = agora.getDate();
+            document.getElementById('out-mes').textContent = meses[agora.getMonth()];
             document.getElementById('out-ano-assin').textContent = agora.getFullYear();
 
             setTimeout(() => {
                 window.print();
-            }, 300);
+            }, 200);
         }
     </script>
 </body>
